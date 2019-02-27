@@ -33,8 +33,8 @@ cacheState SetCache::findTag(uint64_t set,
     cacheLine temp;
     temp.tag = tag;
     auto it = sets[set].find(temp);
-    if (it == sets[set].end()) return INV;
-    return it->state;
+    if (it != sets[set].end()) return it->state;
+    return INV;
 }
 
 /* FIXME invalid vs not found */
