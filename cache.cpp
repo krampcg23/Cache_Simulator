@@ -59,13 +59,13 @@ void SetCache::changeState(uint64_t set, uint64_t tag,
 // updateLRU called when there is a hit
 void SetCache::updateLRU(uint64_t set, uint64_t tag)
 {
-    auto theList = lruLists[set];
-    auto theMap = lruMaps[set];
-
-    cacheLines newLine;
-    newLine.tag = tag;
-
-    
+    for (auto it = lruLists[set].begin(); it != lruLists[set].end(); it++) {
+        if (*it == tag) {
+            lruLists[set].erase(it);
+            lruLists[set].push_front(tag);
+            break;
+        }
+    }
 
 }
 
@@ -85,7 +85,7 @@ bool SetCache::checkWriteback(uint64_t set,
 
 // FIXME: invalid vs not found
 // Insert a new cache line by popping the least recently used line
-// and pushing the new line to the back (most recently used)
+// and pushing the new line to the front (most recently used)
 void SetCache::insertLine(uint64_t set, uint64_t tag,
                            cacheState state)
 {
@@ -93,8 +93,16 @@ void SetCache::insertLine(uint64_t set, uint64_t tag,
     newLine.tag = tag;
     newLine.state = state;
 
-    lruLists[set].pop_back();
-    lruLists[set].push_front(
+    cacheLine toEvict;
+    uint64_t evictionTag = lruLists[set].back();
+    toEvict.tag = evictionTag;
 
+    if (sets[set].count(toEvict) == 1) {
+        sets[set].erase(toEvict);
+    }
+    lruLists[set].pop_back();
+
+    sets[set].insert(newLine);
+    lruLists[set].push_front(tag);
 }
 
