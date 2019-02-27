@@ -30,7 +30,11 @@ SetCache::SetCache(unsigned int num_lines, unsigned int assoc)
 cacheState SetCache::findTag(uint64_t set,
                               uint64_t tag) const
 {
-
+    cacheLine temp;
+    temp.tag = tag;
+    auto it = sets[set].find(temp);
+    if (it == sets[set].end()) return INV;
+    return it->state;
 }
 
 /* FIXME invalid vs not found */
@@ -51,8 +55,17 @@ void SetCache::changeState(uint64_t set, uint64_t tag,
 
 // A complete LRU is mantained for each set, using a separate
 // list and map. The front of the list is considered most recently used.
+//
+// updateLRU called when there is a hit
 void SetCache::updateLRU(uint64_t set, uint64_t tag)
 {
+    auto theList = lruLists[set];
+    auto theMap = lruMaps[set];
+
+    cacheLines newLine;
+    newLine.tag = tag;
+
+    
 
 }
 
@@ -76,6 +89,12 @@ bool SetCache::checkWriteback(uint64_t set,
 void SetCache::insertLine(uint64_t set, uint64_t tag,
                            cacheState state)
 {
+    cacheLine newLine;
+    newLine.tag = tag;
+    newLine.state = state;
+
+    lruLists[set].pop_back();
+    lruLists[set].push_front(
 
 }
 
