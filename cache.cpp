@@ -25,7 +25,7 @@ SetCache::SetCache(unsigned int num_lines, unsigned int assoc)
    }
 }
 
-/* FIXME invalid vs not found */
+/* COMPLETED invalid vs not found */
 // Given the set and tag, return the cache lines state
 cacheState SetCache::findTag(uint64_t set,
                               uint64_t tag) const
@@ -37,7 +37,7 @@ cacheState SetCache::findTag(uint64_t set,
     return INV;
 }
 
-/* FIXME invalid vs not found */
+/* COMPLETED invalid vs not found */
 // Changes the cache line specificed by "set" and "tag" to "state"
 void SetCache::changeState(uint64_t set, uint64_t tag,
                               cacheState state)
@@ -53,20 +53,21 @@ void SetCache::changeState(uint64_t set, uint64_t tag,
    }
 }
 
+// COMPLETED
 // A complete LRU is mantained for each set, using a separate
 // list and map. The front of the list is considered most recently used.
 //
 // updateLRU called when there is a hit
 void SetCache::updateLRU(uint64_t set, uint64_t tag)
 {
-    for (auto it = lruLists[set].begin(); it != lruLists[set].end(); it++) {
-        if (*it == tag) {
-            lruLists[set].erase(it);
-            lruLists[set].push_front(tag);
-            break;
-        }
-    }
-
+    // Given a tag, LruMaps can quickly find the corresponding cache line.
+    // - Dr. Wu
+    // So, use the map to find the iterator
+    // to the set, erase, and add the new item
+    auto setIt = lruMaps[set][tag];
+    lruLists[set].erase(setIt);
+    lruLists[set].push_front(tag);
+    lruMaps[set][tag] = lruLists[set].begin();
 }
 
 // Called if a new cache line is to be inserted. Checks if
@@ -83,26 +84,30 @@ bool SetCache::checkWriteback(uint64_t set,
    return (evict.state == MOD || evict.state == OWN);
 }
 
-// FIXME: invalid vs not found
+// COMPLETED: invalid vs not found
 // Insert a new cache line by popping the least recently used line
 // and pushing the new line to the front (most recently used)
 void SetCache::insertLine(uint64_t set, uint64_t tag,
                            cacheState state)
 {
+    // Construct the line to be added
     cacheLine newLine;
     newLine.tag = tag;
     newLine.state = state;
 
+    // Construct the line to be evicted
     cacheLine toEvict;
     uint64_t evictionTag = lruLists[set].back();
     toEvict.tag = evictionTag;
 
-    if (sets[set].count(toEvict) == 1) {
-        sets[set].erase(toEvict);
-    }
-    lruLists[set].pop_back();
-
+    // Remove the old line and add the new line
+    sets[set].erase(toEvict);
     sets[set].insert(newLine);
+
+    lruLists[set].pop_back();
     lruLists[set].push_front(tag);
+
+    lruMaps[set].erase(evictionTag);
+    lruMaps[set][tag] = lruLists[set].begin();
 }
 
