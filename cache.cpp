@@ -9,6 +9,7 @@
 SetCache::SetCache(unsigned int num_lines, unsigned int assoc)
 {
    this->assoc = assoc;
+   // For LRU, set to 'L'
    this->policy = 'L';
 
    /** UNCOMMENT BELOW TO GET RANDOM POLICY **/
