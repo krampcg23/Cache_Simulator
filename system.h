@@ -59,6 +59,7 @@ public:
    virtual void memAccess(uint64_t address, char rw,
                            unsigned int tid, bool is_prefetch=false) = 0;
    SystemStats stats;
+   bool policy;
 };
 
 //For a system containing multiple caches

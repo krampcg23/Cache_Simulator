@@ -14,6 +14,7 @@ System::System(std::vector<unsigned int> tid_to_domain,
             Prefetch* prefetcher, bool count_compulsory /*=false*/,
             bool do_addr_trans /*=false*/)
 {
+   policy = true;
    assert(num_lines % assoc == 0);
 
    stats.hits = stats.local_reads = stats.remote_reads =
@@ -75,6 +76,7 @@ unsigned int MultiCacheSystem::checkRemoteStates(uint64_t set,
    unsigned int remote = 0;
 
    for(unsigned int i=0; i<caches.size(); i++) {
+
       if(i == local) {
          continue;
       }

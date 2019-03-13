@@ -64,8 +64,8 @@ void SetCache::updateLRU(uint64_t set, uint64_t tag)
     // - Dr. Wu
     // So, use the map to find the iterator
     // to the set, erase, and add the new item
-    auto setIt = lruMaps[set][tag];
-    lruLists[set].erase(setIt);
+    auto it = lruMaps[set][tag];
+    lruLists[set].erase(it);
     lruLists[set].push_front(tag);
     lruMaps[set][tag] = lruLists[set].begin();
 }
@@ -91,9 +91,9 @@ void SetCache::insertLine(uint64_t set, uint64_t tag,
                            cacheState state)
 {
     // Construct the line to be added
-    cacheLine newLine;
-    newLine.tag = tag;
-    newLine.state = state;
+    cacheLine insertingLine;
+    insertingLine.tag = tag;
+    insertingLine.state = state;
 
     // Construct the line to be evicted
     cacheLine toEvict;
@@ -102,7 +102,7 @@ void SetCache::insertLine(uint64_t set, uint64_t tag,
 
     // Remove the old line and add the new line
     sets[set].erase(toEvict);
-    sets[set].insert(newLine);
+    sets[set].insert(insertingLine);
 
     lruLists[set].pop_back();
     lruLists[set].push_front(tag);

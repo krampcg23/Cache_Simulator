@@ -36,6 +36,7 @@ public:
    bool checkWriteback(uint64_t set, uint64_t& tag) const;
    void insertLine(uint64_t set, uint64_t tag,
                      cacheState state);
+   unsigned int assoc;
 };
 
 #endif
