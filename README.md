@@ -59,3 +59,5 @@ The following were the hit ratios I got:
 494161/496611 = 99.5\% for LRU
 
 493566/496611 = 99.38\% for Random Replacement
+
+The results show that LRU is a better policy than random replacement.  This is an expected result
