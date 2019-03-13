@@ -37,6 +37,7 @@ cacheState SetCache::findTag(uint64_t set,
     return INV;
 }
 
+
 /* COMPLETED invalid vs not found */
 // Changes the cache line specificed by "set" and "tag" to "state"
 void SetCache::changeState(uint64_t set, uint64_t tag,
@@ -90,24 +91,22 @@ bool SetCache::checkWriteback(uint64_t set,
 void SetCache::insertLine(uint64_t set, uint64_t tag,
                            cacheState state)
 {
-    // Construct the line to be added
-    cacheLine insertingLine;
-    insertingLine.tag = tag;
-    insertingLine.state = state;
-
     // Construct the line to be evicted
     cacheLine toEvict;
     uint64_t evictionTag = lruLists[set].back();
     toEvict.tag = evictionTag;
-
-    // Remove the old line and add the new line
+    // Remove the old line
     sets[set].erase(toEvict);
-    sets[set].insert(insertingLine);
-
     lruLists[set].pop_back();
-    lruLists[set].push_front(tag);
-
     lruMaps[set].erase(evictionTag);
+
+    // Construct the line to be added
+    cacheLine insertingLine;
+    insertingLine.tag = tag;
+    insertingLine.state = state;
+    // Add the line
+    sets[set].insert(insertingLine);
+    lruLists[set].push_front(tag);
     lruMaps[set][tag] = lruLists[set].begin();
 }
 
