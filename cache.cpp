@@ -4,9 +4,16 @@
 #include <utility>
 #include "misc.h"
 #include "cache.h"
+#include <random>
 
 SetCache::SetCache(unsigned int num_lines, unsigned int assoc)
 {
+   this->assoc = assoc;
+   this->policy = 'L';
+
+   /** UNCOMMENT BELOW TO GET RANDOM POLICY **/
+   // this->policy = 'R';
+
    assert(num_lines % assoc == 0);
    // The set bits of the address will be used as an index
    // into sets. Each set is a set containing "assoc" items
@@ -65,20 +72,32 @@ void SetCache::updateLRU(uint64_t set, uint64_t tag)
     // - Dr. Wu
     // So, use the map to find the iterator
     // to the set, erase, and add the new item
+
     auto it = lruMaps[set][tag];
     lruLists[set].erase(it);
     lruLists[set].push_front(tag);
     lruMaps[set][tag] = lruLists[set].begin();
 }
 
+void SetCache::generateNewNum() {
+   randomNum = rand() % assoc;
+}
+
 // Called if a new cache line is to be inserted. Checks if
 // the least recently used line needs to be written back to
 // main memory.
 bool SetCache::checkWriteback(uint64_t set,
-                                 uint64_t& tag) const
+                                 uint64_t& tag)
 {
+   generateNewNum();
    cacheLine evict, temp;
-   tag = lruLists[set].back();
+   if (policy == 'L') {
+       tag = lruLists[set].back();
+   } else {
+       auto it = lruLists[set].begin();
+       std::advance(it, randomNum);
+       tag = *it;
+   }
    temp.tag = tag;
    evict = *sets[set].find(temp);
 
@@ -93,11 +112,28 @@ void SetCache::insertLine(uint64_t set, uint64_t tag,
 {
     // Construct the line to be evicted
     cacheLine toEvict;
-    uint64_t evictionTag = lruLists[set].back();
+    uint64_t evictionTag = 0;
+
+    // Get the tag of the cacheline to be evicted
+    // If LRU, choose that one in the back
+    // If random, randomly select a cacheline to replace
+    if (policy == 'L') {
+        evictionTag = lruLists[set].back();
+        // Then remove it
+        lruLists[set].pop_back();
+    } else {
+        // Remove the random number
+        auto it = lruLists[set].begin();
+        // From generateNewNum() called in checkWriteBack we have generated a new number
+        // Use that to delete
+        std::advance(it, randomNum);
+        evictionTag = *it;
+        lruLists[set].erase(it);
+    }
+
     toEvict.tag = evictionTag;
-    // Remove the old line
+    // Remove the old cacheline 
     sets[set].erase(toEvict);
-    lruLists[set].pop_back();
     lruMaps[set].erase(evictionTag);
 
     // Construct the line to be added
@@ -109,4 +145,3 @@ void SetCache::insertLine(uint64_t set, uint64_t tag,
     lruLists[set].push_front(tag);
     lruMaps[set][tag] = lruLists[set].begin();
 }
-

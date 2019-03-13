@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include "system.h"
+#include <random>
 
 using namespace std;
 
@@ -12,6 +13,7 @@ int main()
    // tid_map is used to inform the simulator how
    // thread ids map to NUMA/cache domains. Using
    // the tid as an index gives the NUMA domain.
+   srand(time(NULL));
    unsigned int arr_map[] = {0};
    vector<unsigned int> tid_map(arr_map, arr_map +
          sizeof(arr_map) / sizeof(unsigned int));
@@ -46,7 +48,6 @@ int main()
          // so we make up a tid to stress the MultiCache functionality
          sys.memAccess(address, rw, 0);
       }
-
       ++lines;
    }
 

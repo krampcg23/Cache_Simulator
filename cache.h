@@ -17,7 +17,7 @@ public:
                               uint64_t tag, cacheState state) = 0;
    virtual void updateLRU(uint64_t set, uint64_t tag) = 0;
    virtual bool checkWriteback(uint64_t set,
-      uint64_t& tag) const = 0;
+      uint64_t& tag) = 0;
    virtual void insertLine(uint64_t set,
                               uint64_t tag, cacheState state) = 0;
 };
@@ -33,10 +33,13 @@ public:
    void changeState(uint64_t set, uint64_t tag,
                      cacheState state);
    void updateLRU(uint64_t set, uint64_t tag);
-   bool checkWriteback(uint64_t set, uint64_t& tag) const;
+   bool checkWriteback(uint64_t set, uint64_t& tag);
    void insertLine(uint64_t set, uint64_t tag,
                      cacheState state);
+   void generateNewNum();
    unsigned int assoc;
+   char policy;
+   unsigned int randomNum;
 };
 
 #endif

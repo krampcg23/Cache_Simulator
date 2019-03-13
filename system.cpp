@@ -361,7 +361,7 @@ void SingleCacheSystem::memAccess(uint64_t address, char rw, unsigned
    else {
       new_state = MOD;
    }
-
+   
    if(!is_prefetch) {
       stats.local_reads++;
    }
