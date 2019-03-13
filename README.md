@@ -1,6 +1,8 @@
 # Cache Simulator
 ## Author: Clayton Kramp
 
+## SWITCH BETWEEN LRU and Random Policy through the constructor in cache.cpp, line 13
+
 ## LRU Policy
 The functions `findTag`, `updateLRU`, and `insertLine` have been completed to reflect the LRU policy.  To use LRU, set `bool policy = 'L'` in the constructor of `cache.cpp`
 ### findTag

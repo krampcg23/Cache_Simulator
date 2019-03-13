@@ -38,10 +38,14 @@ SetCache::SetCache(unsigned int num_lines, unsigned int assoc)
 cacheState SetCache::findTag(uint64_t set,
                               uint64_t tag) const
 {
+    // Construct a cacheline with the arguments
     cacheLine temp;
     temp.tag = tag;
+    // Find it in the sets
     auto it = sets[set].find(temp);
+    // If found, return the state
     if (it != sets[set].end()) return it->state;
+    // Otherwise, return INV
     return INV;
 }
 
@@ -80,6 +84,7 @@ void SetCache::updateLRU(uint64_t set, uint64_t tag)
     lruMaps[set][tag] = lruLists[set].begin();
 }
 
+// Helper that has been added to generate random numbers between [0, associativity)
 void SetCache::generateNewNum() {
    randomNum = rand() % assoc;
 }
@@ -90,11 +95,14 @@ void SetCache::generateNewNum() {
 bool SetCache::checkWriteback(uint64_t set,
                                  uint64_t& tag)
 {
+   // helper to generate a new random num
    generateNewNum();
    cacheLine evict, temp;
+   // Adjusted so that it can handle Random policy too
    if (policy == 'L') {
        tag = lruLists[set].back();
    } else {
+       // grab the tag of the cacheline that is about to be evicted
        auto it = lruLists[set].begin();
        std::advance(it, randomNum);
        tag = *it;
